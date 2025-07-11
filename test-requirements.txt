@@ -1,0 +1,2 @@
+odoo14-addon-ssi-hr-payroll
+odoo14-addon-ssi-transaction-ready-mixin
