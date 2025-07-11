@@ -5,6 +5,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
+from odoo.addons.ssi_decorator import ssi_decorator
+
 
 class PayrollAgreement(models.Model):
     _name = "payroll_agreement"
@@ -108,22 +110,6 @@ class PayrollAgreement(models.Model):
         comodel_name="payroll_agreement_input",
         inverse_name="payroll_agreement_id",
     )
-    state = fields.Selection(
-        string="State",
-        selection=[
-            ("draft", "Draft"),
-            ("confirm", "Waiting for Approval"),
-            ("ready", "Ready to Start"),
-            ("open", "In Progress"),
-            ("done", "Done"),
-            ("cancel", "Cancelled"),
-            ("reject", "Rejected"),
-        ],
-        copy=False,
-        default="draft",
-        required=True,
-        readonly=True,
-    )
 
     @api.model
     def _get_policy_field(self):
@@ -141,6 +127,12 @@ class PayrollAgreement(models.Model):
         ]
         res += policy_field
         return res
+
+    @ssi_decorator.insert_on_form_view()
+    def _insert_form_element(self, view_arch):
+        if self._automatically_insert_view_element:
+            view_arch = self._reconfigure_statusbar_visible(view_arch)
+        return view_arch
 
     def action_populate_salary_rule_ids(self):
         for record in self:

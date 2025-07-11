@@ -4,12 +4,6 @@
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
     <menuitem
-        id="payroll_agreement_menu"
-        name="Payroll Agreement"
-        parent="ssi_hr_payroll.hr_payroll_root_menu"
-        sequence="10"
-    />
-    <menuitem
         id="payroll_agreement_configuration_menu"
         name="Payroll Agreement"
         parent="ssi_hr.menu_human_resource_configuration"

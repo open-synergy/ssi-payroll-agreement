@@ -33,6 +33,7 @@ class HrEmployee(models.Model):
         string="Active Agreement",
         store=True,
         readonly=True,
+        compute_sudo=True,
     )
 
     method = fields.Selection(
@@ -65,4 +66,5 @@ class HrEmployee(models.Model):
         comodel_name="hr.salary_structure",
         compute="_compute_salary_structure_id",
         store=True,
+        compute_sudo=True,
     )

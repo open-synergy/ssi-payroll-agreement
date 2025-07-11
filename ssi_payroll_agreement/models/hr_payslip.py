@@ -38,6 +38,7 @@ class HrPayslip(models.Model):
         compute="_compute_payroll_agreement_id",
         string="Active Agreement",
         store=True,
+        compute_sudo=True,
     )
     method = fields.Selection(
         related="employee_id.method",
