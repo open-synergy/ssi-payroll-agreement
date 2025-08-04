@@ -1,47 +1,69 @@
 .. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
-   :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
+   :target: https://www.gnu.org/licenses/agpl-3.0.html
    :alt: License: AGPL-3
 
-=================
-Payroll Agreement
-=================
+==================
+📝 **Description**
+==================
 
+Payroll Agreement is an Odoo module designed to provide comprehensive payroll agreement management functionality. It enables organizations to create, manage, and track payroll agreements with employees, contractors, and other stakeholders in a structured and standardized way.
 
-Installation
-============
+It is ideal for HR departments and payroll administrators who need to maintain clear documentation and tracking of payroll-related agreements and commitments.
 
-To install this module, you need to:
+==========================
+💡 **Use Cases / Context**
+==========================
 
-1.  Clone the branch 14.0 of the repository https://github.com/open-synergy/ssi-payroll-agreement
-2.  Add the path to this repository in your configuration (addons-path)
-3.  Update the module list
-4.  Go to menu *Apps -> Apps -> Main Apps*
-5.  Search For *Payroll Agreement*
+- HR departments managing employee payroll agreements and contracts
+- Organizations requiring structured payroll agreement documentation
+- Companies needing to track and manage payroll-related commitments
+- Businesses that require audit trails for payroll agreement changes
+
+===================
+🚀 **Installation**
+===================
+
+To install this module:
+
+1.  Clone the branch **18.0** of the repository: https://github.com/open-synergy/ssi-payroll-agreement
+2.  Add the path to this repository in your Odoo configuration (`addons-path`)
+3.  Update the module list (ensure you are in developer mode)
+4.  Go to menu *Apps → Apps → Main Apps*
+5.  Search for *Payroll Agreement*
 6.  Install the module
 
-Bug Tracker
-===========
+=================
+🛠️ **How To Use**
+=================
 
-Bugs are tracked on `GitHub Issues
-<https://github.com/open-synergy/ssi-payroll-agreement/issues>`_.
-In case of trouble, please check there if your issue has already been reported.
-If you spotted it first, help us smashing it by providing a detailed
-and welcomed feedback.
+1. Install this module and its dependencies.
+2. Activate developer mode in Odoo.
+3. Go to the Payroll Agreement menu in Odoo.
+4. Create new payroll agreements or manage existing ones.
+5. Configure agreement terms, conditions, and stakeholders.
+6. Use the provided workflows to process and track agreement status.
 
+==================
+🐞 **Bug Tracker**
+==================
 
-Credits
-=======
+Bugs are tracked on `GitHub Issues <https://github.com/open-synergy/ssi-payroll-agreement/issues>`_.
+If you encounter any issues, please check if it has already been reported. If not, help us improve by providing detailed feedback.
 
-Contributors
-------------
+==============
+🙌 **Credits**
+==============
 
-* Michael Viriyananda <viriyananda.michael@gmail.com>
+**Contributors:**
 
-Maintainer
-----------
+- Michael Viriyananda <viriyananda.michael@gmail.com>
+
+===============
+**Maintainer:**
+===============
 
 .. image:: https://simetri-sinergi.id/logo.png
    :alt: PT. Simetri Sinergi Indonesia
    :target: https://simetri-sinergi.id
 
-This module is maintained by the PT. Simetri Sinergi Indonesia.
+This module is maintained by PT. Simetri Sinergi Indonesia.

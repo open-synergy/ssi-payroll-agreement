@@ -1,7 +1,6 @@
 # Copyright 2025 OpenSynergy Indonesia
 # Copyright 2025 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
-
 from odoo import api, fields, models
 
 from odoo.addons.ssi_hr_payroll.models.hr_payslip import BrowsableObject
@@ -24,21 +23,10 @@ class AgreementInputLine(BrowsableObject):
 class HrPayslip(models.Model):
     _inherit = "hr.payslip"
 
-    @api.depends(
-        "employee_id",
-        "employee_id.method",
-    )
-    def _compute_payroll_agreement_id(self):
-        for record in self:
-            if record.employee_id:
-                record.payroll_agreement_id = record.employee_id.payroll_agreement_id
-
     payroll_agreement_id = fields.Many2one(
-        comodel_name="payroll_agreement",
-        compute="_compute_payroll_agreement_id",
         string="Active Agreement",
-        store=True,
-        compute_sudo=True,
+        comodel_name="payroll_agreement",
+        required=False,
     )
     method = fields.Selection(
         related="employee_id.method",
@@ -66,3 +54,39 @@ class HrPayslip(models.Model):
             res["aggr_inputs"] = aggr_inputs
 
         return res
+
+    def _get_payroll_agreement(self):
+        self.ensure_one()
+        result = False
+        aggrements = self.employee_id.payroll_agreement_ids.filtered(
+            lambda x: x.date <= self.date_start
+        )
+        if aggrements:
+            result = aggrements[0]
+        return result
+
+    @api.onchange(
+        "method",
+        "date_start",
+    )
+    def onchange_payroll_agreement_id(self):
+        self.payroll_agreement_id = False
+        if self.method == "agreement" and self.date_start:
+            self.payroll_agreement_id = self._get_payroll_agreement()
+
+    @api.onchange(
+        "payroll_agreement_id",
+    )
+    def onchange_aggrement_structure_id(self):
+        if self.payroll_agreement_id:
+            self.structure_id = self.payroll_agreement_id.salary_structure_id
+        else:
+            self.onchange_structure_id()
+
+    @api.onchange(
+        "employee_id",
+    )
+    def onchange_structure_id(self):
+        self.structure_id = False
+        if self.employee_id and self.method == "manual":
+            self.structure_id = self.employee_id.salary_structure_id

@@ -19,7 +19,7 @@ class PayrollAgreement(models.Model):
         "mixin.transaction_cancel",
     ]
     _description = "Payroll Agreement"
-    _order = "employee_id, date, id"
+    _order = "employee_id, date desc"
     _approval_from_state = "draft"
     _approval_to_state = "ready"
     _approval_state = "confirm"
