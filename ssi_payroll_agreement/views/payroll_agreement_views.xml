@@ -67,6 +67,7 @@
             </xpath>
             <xpath expr="//group[@name='header_right']" position="inside">
                 <field name="date" />
+                <field name="reference" />
             </xpath>
             <xpath expr="//notebook" position="replace">
                 <notebook>

@@ -110,6 +110,11 @@ class PayrollAgreement(models.Model):
         comodel_name="payroll_agreement_input",
         inverse_name="payroll_agreement_id",
     )
+    reference = fields.Char(
+        string="Reference",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+    )
 
     @api.model
     def _get_policy_field(self):
