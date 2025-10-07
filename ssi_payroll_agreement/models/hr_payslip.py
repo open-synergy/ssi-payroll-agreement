@@ -1,7 +1,8 @@
 # Copyright 2025 OpenSynergy Indonesia
 # Copyright 2025 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 from odoo.addons.ssi_hr_payroll.models.hr_payslip import BrowsableObject
 
@@ -24,7 +25,7 @@ class HrPayslip(models.Model):
     _inherit = "hr.payslip"
 
     payroll_agreement_id = fields.Many2one(
-        string="Active Agreement",
+        string="Payroll Agreement",
         comodel_name="payroll_agreement",
         required=False,
     )
@@ -58,11 +59,33 @@ class HrPayslip(models.Model):
     def _get_payroll_agreement(self):
         self.ensure_one()
         result = False
+
+        if not self.employee_id.payroll_agreement_id:
+            error_message = """
+            Context: Payslip
+            Problem: No active payroll agreement was found for employee %s.
+            Solution: Please create and start a payroll agreement for this employee.
+            """ % (
+                self.employee_id.name
+            )
+            raise ValidationError(_(error_message))
+
         aggrements = self.employee_id.payroll_agreement_ids.filtered(
-            lambda x: x.date <= self.date_start
+            lambda x: x.date <= self.date_start and x.state in ["open", "done"]
         )
         if aggrements:
             result = aggrements[0]
+        else:
+            error_message = """
+            Context: Payslip
+            Problem: No payroll agreement was found for %s on %s.
+            Solution: Please create and start a payroll agreement for this employee.
+            """ % (
+                self.employee_id.name,
+                self.date_start,
+            )
+            raise ValidationError(_(error_message))
+
         return result
 
     @api.onchange(

@@ -16,6 +16,7 @@
                         name="payroll_agreement_id"
                         readonly="1"
                         attrs="{'invisible':['|',('method','=', False),('method','=','manual')]}"
+                        force_save="1"
                     />
             </xpath>
         </data>
