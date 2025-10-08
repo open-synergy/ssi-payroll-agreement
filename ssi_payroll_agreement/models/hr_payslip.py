@@ -36,7 +36,7 @@ class HrPayslip(models.Model):
     def _get_salary_rules(self):
         _super = super(HrPayslip, self)
         res = _super._get_salary_rules()
-        if self.method == "agreement":
+        if self.payroll_agreement_id:
             res = self.payroll_agreement_id.salary_rule_ids
         return res
 
