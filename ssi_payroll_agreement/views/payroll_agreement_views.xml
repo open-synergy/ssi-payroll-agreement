@@ -51,6 +51,7 @@
     <field name="model">payroll_agreement</field>
     <field name="mode">primary</field>
     <field name="inherit_id" ref="ssi_transaction_mixin.mixin_transaction_view_form" />
+    <field name="priority">100</field>
     <field name="arch" type="xml">
         <data>
             <xpath expr="//field[@name='user_id']" position="after">

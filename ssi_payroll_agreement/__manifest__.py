@@ -13,6 +13,7 @@
     "depends": [
         "ssi_hr_payroll",
         "ssi_transaction_ready_mixin",
+        "ssi_transaction_open_mixin",
     ],
     "data": [
         "security/ir_module_category_data.xml",
