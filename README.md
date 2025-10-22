@@ -14,7 +14,11 @@ Payroll Agrements
 
 [//]: # (addons)
 
-This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
+Available addons
+----------------
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[ssi_payroll_agreement](ssi_payroll_agreement/) | 14.0.1.0.0 |  | Payroll Agreement
 
 [//]: # (end addons)
 
