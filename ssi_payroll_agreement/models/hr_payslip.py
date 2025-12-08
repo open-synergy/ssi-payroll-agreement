@@ -37,7 +37,9 @@ class HrPayslip(models.Model):
         _super = super(HrPayslip, self)
         res = _super._get_salary_rules()
         if self.payroll_agreement_id:
-            res = self.payroll_agreement_id.salary_rule_ids
+            rule_ids = self.payroll_agreement_id.salary_rule_ids
+            sorted_rule_ids = rule_ids.sorted(lambda x: x.sequence)
+            res = sorted_rule_ids
         return res
 
     def _get_base_localdict(self, payslip):
@@ -53,7 +55,6 @@ class HrPayslip(models.Model):
         )
         if aggr_inputs:
             res["aggr_inputs"] = aggr_inputs
-
         return res
 
     def _get_payroll_agreement(self):
