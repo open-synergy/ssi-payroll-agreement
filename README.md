@@ -18,7 +18,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[ssi_payroll_agreement](ssi_payroll_agreement/) | 14.0.1.0.0 |  | Payroll Agreement
+[ssi_payroll_agreement](ssi_payroll_agreement/) | 14.0.1.0.1 |  | Payroll Agreement
 
 [//]: # (end addons)
 
