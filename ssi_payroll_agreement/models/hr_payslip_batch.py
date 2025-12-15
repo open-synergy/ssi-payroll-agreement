@@ -17,4 +17,3 @@ class HrPayslipBatch(models.Model):
         _super._trigger_onchange(payslip)
         payslip.onchange_payroll_agreement_id()
         payslip.onchange_aggrement_structure_id()
-        payslip.onchange_structure_id()
