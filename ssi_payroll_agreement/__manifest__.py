@@ -12,6 +12,7 @@
     "application": True,
     "depends": [
         "ssi_hr_payroll",
+        "ssi_hr_payroll_batch",
         "ssi_transaction_ready_mixin",
         "ssi_transaction_open_mixin",
     ],

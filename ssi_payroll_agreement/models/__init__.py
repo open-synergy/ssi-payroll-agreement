@@ -10,4 +10,5 @@ from . import (
     hr_employee,
     hr_payslip,
     hr_salary_rule,
+    hr_payslip_batch,
 )
