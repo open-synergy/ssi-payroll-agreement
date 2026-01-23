@@ -31,6 +31,7 @@ class HrPayslip(models.Model):
     )
     method = fields.Selection(
         related="employee_id.method",
+        compute_sudo=True,
     )
 
     def _get_salary_rules(self):
