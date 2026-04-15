@@ -2,12 +2,12 @@
    :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
    :alt: License: AGPL-3
 
-=================================================
-Payroll Agreement - Documenso Signing Integration
-=================================================
+==============================================
+Payroll Agreement - Operating Unit Integration
+==============================================
 
-This module integrates Documenso digital signing into the Payroll Agreement module.
-It adds a Documenso signing tab to the payroll agreement form view.
+This module integrates Operating Unit support into the Payroll Agreement module.
+It allows payroll agreement documents to be scoped to a specific operating unit.
 
 
 Bug Tracker
