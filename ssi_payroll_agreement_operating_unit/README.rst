@@ -1,37 +1,70 @@
 .. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
-   :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
+   :target: https://www.gnu.org/licenses/agpl-3.0.html
    :alt: License: AGPL-3
 
-==============================================
-Payroll Agreement - Operating Unit Integration
-==============================================
+==================
+📝 **Description**
+==================
 
-This module integrates Operating Unit support into the Payroll Agreement module.
-It allows payroll agreement documents to be scoped to a specific operating unit.
+Payroll Agreement - Operating Unit Integration is an Odoo module that extends the
+Payroll Agreement module with Operating Unit support. It allows payroll agreement
+documents to be scoped and filtered by a specific operating unit, enabling
+multi-company or multi-division environments to manage their payroll agreements
+independently.
 
+==========================
+💡 **Use Cases / Context**
+==========================
 
-Bug Tracker
-===========
+- Organizations with multiple operating units requiring separate payroll agreement management
+- Multi-division companies needing to restrict payroll agreement visibility per unit
+- Businesses using operating unit-based access control for HR documents
 
-Bugs are tracked on `GitHub Issues
-<https://github.com/open-synergy/ssi-payroll-agreement/issues>`_. In case of trouble, please
-check there if your issue has already been reported. If you spotted it first,
-help us smash it by providing detailed and welcomed feedback.
+===================
+🚀 **Installation**
+===================
 
+To install this module:
 
-Credits
-=======
+1.  Clone the branch **14.0** of the repository: https://github.com/open-synergy/ssi-payroll-agreement
+2.  Add the path to this repository in your Odoo configuration (`addons-path`)
+3.  Update the module list (ensure you are in developer mode)
+4.  Go to menu *Apps → Apps → Main Apps*
+5.  Search for *Payroll Agreement + Operating Unit*
+6.  Install the module
 
-Contributors
-------------
+=================
+🛠️ **How To Use**
+=================
 
-* Andhitia Rama <andhitia.r@gmail.com>
+1. Install this module along with ``ssi_payroll_agreement`` and ``ssi_operating_unit_mixin``.
+2. Activate developer mode in Odoo.
+3. Go to the Payroll Agreement menu in Odoo.
+4. Create or open a payroll agreement.
+5. Select the desired **Operating Unit** on the agreement form.
+6. Access rules will automatically filter records based on the user's operating unit.
 
-Maintainer
-----------
+==================
+🐞 **Bug Tracker**
+==================
+
+Bugs are tracked on `GitHub Issues <https://github.com/open-synergy/ssi-payroll-agreement/issues>`_.
+If you encounter any issues, please check if it has already been reported. If not, help us improve by providing detailed feedback.
+
+==============
+🙌 **Credits**
+==============
+
+**Contributors:**
+
+- Andhitia Rama <andhitia.r@gmail.com>
+
+===============
+**Maintainer:**
+===============
 
 .. image:: https://simetri-sinergi.id/logo.png
    :alt: PT. Simetri Sinergi Indonesia
    :target: https://simetri-sinergi.id
 
-This module is maintained by the PT. Simetri Sinergi Indonesia.
+This module is maintained by PT. Simetri Sinergi Indonesia.
