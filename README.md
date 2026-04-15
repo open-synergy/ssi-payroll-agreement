@@ -20,6 +20,7 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [ssi_payroll_agreement](ssi_payroll_agreement/) | 14.0.1.3.0 |  | Payroll Agreement
 [ssi_payroll_agreement_documenso_signing](ssi_payroll_agreement_documenso_signing/) | 14.0.1.1.0 |  | Payroll Agreement - Documenso Signing Integration
+[ssi_payroll_agreement_operating_unit](ssi_payroll_agreement_operating_unit/) | 14.0.1.0.0 |  | Payroll Agreement + Operating Unit
 
 [//]: # (end addons)
 

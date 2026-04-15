@@ -10,6 +10,7 @@ setuptools.setup(
     install_requires=[
         'odoo14-addon-ssi_payroll_agreement',
         'odoo14-addon-ssi_payroll_agreement_documenso_signing',
+        'odoo14-addon-ssi_payroll_agreement_operating_unit',
     ],
     classifiers=[
         'Programming Language :: Python',
