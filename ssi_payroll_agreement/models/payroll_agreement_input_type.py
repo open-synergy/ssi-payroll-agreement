@@ -2,7 +2,7 @@
 # Copyright 2025 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
 
-from odoo import models
+from odoo import fields, models
 
 
 class PayrollAgreementInputType(models.Model):
@@ -11,3 +11,8 @@ class PayrollAgreementInputType(models.Model):
         "mixin.master_data",
     ]
     _description = "Payroll Agreement Input Type"
+
+    default_amount = fields.Float(
+        string="Default Amount",
+        default=0.0,
+    )
