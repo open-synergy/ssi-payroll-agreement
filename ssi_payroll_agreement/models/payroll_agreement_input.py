@@ -2,7 +2,7 @@
 # Copyright 2025 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl-3.0-standalone.html).
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class PayrollAgreementInput(models.Model):
@@ -27,3 +27,8 @@ class PayrollAgreementInput(models.Model):
         required=True,
         default=0.0,
     )
+
+    @api.onchange("input_type_id")
+    def _onchange_input_type_id(self):
+        if self.input_type_id:
+            self.amount = self.input_type_id.default_amount
