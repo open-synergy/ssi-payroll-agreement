@@ -9,7 +9,7 @@ class PayrollAgreement(models.Model):
     _name = "payroll_agreement"
     _inherit = [
         "payroll_agreement",
-        "mixin.documenso_signing",
+        "mixin.documenso_signing_approval",
     ]
 
     _documenso_signing_create_page = True
