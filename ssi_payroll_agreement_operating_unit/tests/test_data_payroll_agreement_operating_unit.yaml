@@ -1,0 +1,59 @@
+scenarios:
+  - name: "Payroll Agreement - Operating Unit: create with operating unit"
+    steps:
+      - step: "Create salary structure for OU test"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "OU Test Salary Structure"
+          code: "OUTSTSTR"
+
+      - step: "Create payroll agreement type for OU test"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "OU Test Agreement Type"
+          code: "OUTSTTYPE"
+
+      - step: "Create employee for OU test"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "OU Test Employee"
+
+      - step: "Get main operating unit"
+        action: "search"
+        model: "operating.unit"
+        domain: [["id", ">", 0]]
+        save_as: "operating_unit"
+        limit: 1
+        order: "id asc"
+
+      - step: "Create payroll agreement with operating unit"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+          operating_unit_id: "EVAL: registry['operating_unit'].id"
+
+      - step: "Assert agreement created with operating unit"
+        action: "assert"
+        target: "agreement"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          operating_unit_id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "draft"
