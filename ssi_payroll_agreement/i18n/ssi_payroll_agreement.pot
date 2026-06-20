@@ -302,6 +302,7 @@ msgstr ""
 #. module: ssi_payroll_agreement
 #: model:ir.model,name:ssi_payroll_agreement.model_hr_employee
 #: model:ir.model.fields,field_description:ssi_payroll_agreement.field_payroll_agreement__employee_id
+#: model_terms:ir.ui.view,arch_db:ssi_payroll_agreement.payroll_agreement_view_search
 #: model_terms:ir.ui.view,arch_db:ssi_payroll_agreement.payroll_agreement_view_tree
 msgid "Employee"
 msgstr ""
@@ -766,6 +767,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ssi_payroll_agreement.field_hr_employee__salary_structure_id
 #: model:ir.model.fields,field_description:ssi_payroll_agreement.field_payroll_agreement__salary_structure_id
 #: model_terms:ir.ui.view,arch_db:ssi_payroll_agreement.hr_employee_view_form
+#: model_terms:ir.ui.view,arch_db:ssi_payroll_agreement.payroll_agreement_view_search
 msgid "Salary Structure"
 msgstr ""
 
@@ -808,6 +810,7 @@ msgstr ""
 
 #. module: ssi_payroll_agreement
 #: model:ir.model.fields,field_description:ssi_payroll_agreement.field_payroll_agreement__type_id
+#: model_terms:ir.ui.view,arch_db:ssi_payroll_agreement.payroll_agreement_view_search
 msgid "Type"
 msgstr ""
 
