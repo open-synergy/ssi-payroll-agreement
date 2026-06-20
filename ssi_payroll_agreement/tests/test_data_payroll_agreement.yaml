@@ -1,0 +1,692 @@
+scenarios:
+  - name: "Payroll Agreement Type - Create and Update"
+    steps:
+      - step: "Create payroll agreement type"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "Test Agreement Type"
+          code: "TSTAGTYPE"
+
+      - step: "Assert type created"
+        action: "assert"
+        target: "agreement_type"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          name:
+            type: "value"
+            expected: "Test Agreement Type"
+          code:
+            type: "value"
+            expected: "TSTAGTYPE"
+
+      - step: "Update agreement type name"
+        action: "write"
+        target: "agreement_type"
+        values:
+          name: "Updated Agreement Type"
+
+      - step: "Assert type updated"
+        action: "assert"
+        target: "agreement_type"
+        asserts:
+          name:
+            type: "value"
+            expected: "Updated Agreement Type"
+
+  - name: "Payroll Agreement Input Type - Create and Update"
+    steps:
+      - step: "Create payroll agreement input type"
+        action: "create"
+        model: "payroll_agreement_input_type"
+        save_as: "input_type"
+        values:
+          name: "Test Input Type"
+          code: "TSTINPTYPE"
+          default_amount: 1500.0
+
+      - step: "Assert input type created"
+        action: "assert"
+        target: "input_type"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          name:
+            type: "value"
+            expected: "Test Input Type"
+          default_amount:
+            type: "value"
+            expected: 1500.0
+
+      - step: "Update input type default amount"
+        action: "write"
+        target: "input_type"
+        values:
+          default_amount: 2000.0
+
+      - step: "Assert input type updated"
+        action: "assert"
+        target: "input_type"
+        asserts:
+          default_amount:
+            type: "value"
+            expected: 2000.0
+
+  - name: "Payroll Agreement - Full Workflow: draft to done"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "PA Test Debit Account"
+          code: "PATSTDB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "PA Test Credit Account"
+          code: "PATSTCR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "rule_category"
+        values:
+          name: "PA Test Rule Category"
+          code: "PATSTCAT"
+
+      - step: "Create salary rule"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "salary_rule"
+        values:
+          name: "PA Test Salary Rule"
+          code: "PATSTRULE"
+          category_id: "EVAL: registry['rule_category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 500.0"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Test Salary Structure"
+          code: "PATSTSTR"
+          rule_ids:
+            - "EVAL: registry['salary_rule'].id"
+
+      - step: "Create payroll agreement type"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Test Agreement Type Workflow"
+          code: "PAWFTYPE"
+
+      - step: "Create payroll agreement input type"
+        action: "create"
+        model: "payroll_agreement_input_type"
+        save_as: "input_type"
+        values:
+          name: "PA Test Input Type Workflow"
+          code: "PAWFINPTYPE"
+          default_amount: 500.0
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Test Employee Workflow"
+
+      - step: "Create payroll agreement"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+          reference: "PA-TEST-WF-001"
+
+      - step: "Assert agreement created in draft"
+        action: "assert"
+        target: "agreement"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+          employee_id:
+            type: "value"
+            operator: "is_truthy"
+          salary_structure_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Create input line for agreement"
+        action: "create"
+        model: "payroll_agreement_input"
+        save_as: "input_line"
+        values:
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          input_type_id: "EVAL: registry['input_type'].id"
+          amount: 500.0
+
+      - step: "Assert input line created"
+        action: "assert"
+        target: "input_line"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          amount:
+            type: "value"
+            expected: 500.0
+
+      - step: "Confirm agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Approve agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "ready"
+
+      - step: "Invalidate cache after approve"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Open agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Invalidate cache after open"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Assert employee has active agreement"
+        action: "assert"
+        target: "employee"
+        asserts:
+          payroll_agreement_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Populate salary rule IDs"
+        action: "call"
+        target: "agreement"
+        method: "action_populate_salary_rule_ids"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after populate"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Assert salary rules populated"
+        action: "assert"
+        target: "agreement"
+        asserts:
+          salary_rule_ids:
+            type: "m2m"
+            check: "count"
+            expected_count: 1
+
+      - step: "Mark agreement as done"
+        action: "call"
+        target: "agreement"
+        method: "action_done"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "done"
+
+  - name: "Payroll Agreement - Employee compute methods"
+    steps:
+      - step: "Create salary structure for employee compute test"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Compute Test Structure"
+          code: "PACOMPSTR"
+
+      - step: "Create payroll agreement type for compute test"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Compute Test Type"
+          code: "PACOMPTYPE"
+
+      - step: "Create employee for compute test"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Compute Test Employee"
+          method: "agreement"
+
+      - step: "Assert employee compute - no agreement yet"
+        action: "assert"
+        target: "employee"
+        asserts:
+          payroll_agreement_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Create payroll agreement for compute test"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+
+      - step: "Confirm agreement for compute test"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Approve agreement for compute test"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after approve"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Open agreement for compute test"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Invalidate cache after open"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Assert employee compute - has active agreement"
+        action: "assert"
+        target: "employee"
+        asserts:
+          payroll_agreement_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Assert employee salary_structure_id computed from agreement"
+        action: "assert"
+        target: "employee"
+        asserts:
+          salary_structure_id:
+            type: "value"
+            operator: "is_truthy"
+
+  - name: "Payroll Agreement - Employee manual method"
+    steps:
+      - step: "Create salary structure for manual test"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Manual Test Structure"
+          code: "PAMANSTR"
+
+      - step: "Create employee with manual method"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Manual Test Employee"
+          method: "manual"
+          manual_salary_structure_id: "EVAL: registry['salary_structure'].id"
+
+      - step: "Assert employee salary_structure_id from manual"
+        action: "assert"
+        target: "employee"
+        asserts:
+          salary_structure_id:
+            type: "value"
+            operator: "is_truthy"
+          method:
+            type: "value"
+            expected: "manual"
+
+  - name: "Payroll Agreement - Payslip with Agreement"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account for payslip test"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "PA Payslip Test Debit Account"
+          code: "PAPSLDB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account for payslip test"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "PA Payslip Test Credit Account"
+          code: "PAPSLCR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "PA Test Payroll Journal"
+          code: "PAPJRN"
+          type: "general"
+
+      - step: "Create salary rule category for payslip test"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "rule_category"
+        values:
+          name: "PA Payslip Test Category"
+          code: "PAPSLCAT"
+
+      - step: "Create salary rule for payslip test"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "salary_rule"
+        values:
+          name: "PA Payslip Test Rule"
+          code: "PAPSLRULE"
+          category_id: "EVAL: registry['rule_category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = 1000.0"
+          sequence: 10
+
+      - step: "Create salary structure for payslip test"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Payslip Test Structure"
+          code: "PAPSLSTR"
+          rule_ids:
+            - "EVAL: registry['salary_rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "PA Test Payslip Type"
+          code: "PAPSLTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create payroll agreement type for payslip test"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Payslip Test Agreement Type"
+          code: "PAPSLAT"
+
+      - step: "Create payroll agreement input type for payslip test"
+        action: "create"
+        model: "payroll_agreement_input_type"
+        save_as: "input_type"
+        values:
+          name: "PA Payslip Test Input Type"
+          code: "PAPSLINT"
+          default_amount: 1000.0
+
+      - step: "Create employee for payslip test"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Payslip Test Employee"
+          method: "agreement"
+
+      - step: "Create payroll agreement for payslip test"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+
+      - step: "Create input line for payslip test agreement"
+        action: "create"
+        model: "payroll_agreement_input"
+        save_as: "input_line"
+        values:
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          input_type_id: "EVAL: registry['input_type'].id"
+          amount: 1000.0
+
+      - step: "Confirm payroll agreement for payslip test"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Approve payroll agreement for payslip test"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after approve"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Open payroll agreement for payslip test"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Invalidate cache after open"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Populate salary rules for payslip test"
+        action: "call"
+        target: "agreement"
+        method: "action_populate_salary_rule_ids"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after populate"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Create payslip with payroll agreement"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['salary_structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          date_start: 2025-01-01
+          date_end: 2025-01-31
+          date: 2025-01-31
+
+      - step: "Assert payslip created in draft"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"
+          payroll_agreement_id:
+            type: "value"
+            operator: "is_truthy"
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert payslip has lines after compute"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+
+  - name: "Payroll Agreement - Restart workflow"
+    steps:
+      - step: "Create salary structure for restart test"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Restart Test Structure"
+          code: "PARSTSTR"
+
+      - step: "Create payroll agreement type for restart test"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Restart Test Type"
+          code: "PARSTTYPE"
+
+      - step: "Create employee for restart test"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Restart Test Employee"
+
+      - step: "Create payroll agreement for restart test"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-02-01
+
+      - step: "Confirm agreement for restart test"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Restart agreement to draft"
+        action: "call"
+        target: "agreement"
+        method: "action_restart"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "draft"

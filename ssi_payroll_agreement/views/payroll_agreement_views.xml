@@ -39,7 +39,28 @@
         />
     <field name="arch" type="xml">
         <data>
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="employee_id" />
+                <field name="type_id" />
+                <field name="salary_structure_id" />
+                <field name="reference" />
+            </xpath>
             <xpath expr="//group[@name='group_by']" position="inside">
+                <filter
+                        name="grp_employee"
+                        string="Employee"
+                        context="{'group_by':'employee_id'}"
+                    />
+                <filter
+                        name="grp_type"
+                        string="Type"
+                        context="{'group_by':'type_id'}"
+                    />
+                <filter
+                        name="grp_salary_structure"
+                        string="Salary Structure"
+                        context="{'group_by':'salary_structure_id'}"
+                    />
                 <filter name="grp_date" string="Date" context="{'group_by':'date'}" />
             </xpath>
         </data>

@@ -1,0 +1,57 @@
+scenarios:
+  - name: "Payroll Agreement - Documenso: create agreement in documenso context"
+    steps:
+      - step: "Create salary structure for documenso test"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "Documenso Test Salary Structure"
+          code: "DCTSSTSTR"
+
+      - step: "Create payroll agreement type for documenso test"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "Documenso Test Agreement Type"
+          code: "DCTSSTTYPE"
+
+      - step: "Create employee for documenso test"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "Documenso Test Employee PA"
+
+      - step: "Create payroll agreement in documenso context"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+
+      - step: "Assert agreement created with documenso mixin"
+        action: "assert"
+        target: "agreement"
+        asserts:
+          id:
+            type: "value"
+            operator: "is_truthy"
+          state:
+            type: "value"
+            expected: "draft"
+
+      - step: "Confirm agreement in documenso context"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
