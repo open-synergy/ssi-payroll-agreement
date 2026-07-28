@@ -690,3 +690,748 @@ scenarios:
           state:
             type: "value"
             expected: "draft"
+
+  - name: "Payroll Agreement - aggr_inputs.sum() single input line"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "PA Aggr Sum 1 Debit Account"
+          code: "PAAG1DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "PA Aggr Sum 1 Credit Account"
+          code: "PAAG1CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "PA Aggr Sum 1 Payroll Journal"
+          code: "PAAG1"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "rule_category"
+        values:
+          name: "PA Aggr Sum 1 Rule Category"
+          code: "PAAG1CAT"
+
+      - step: "Create salary rule reading aggr_inputs.sum"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "salary_rule"
+        values:
+          name: "PA Aggr Sum 1 Salary Rule"
+          code: "PAAG1RULE"
+          category_id: "EVAL: registry['rule_category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = aggr_inputs.sum('AGGRSUM1')"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Aggr Sum 1 Salary Structure"
+          code: "PAAG1STR"
+          rule_ids:
+            - "EVAL: registry['salary_rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "PA Aggr Sum 1 Payslip Type"
+          code: "PAAG1PSLTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create payroll agreement type"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Aggr Sum 1 Agreement Type"
+          code: "PAAG1AT"
+
+      - step: "Create payroll agreement input type"
+        action: "create"
+        model: "payroll_agreement_input_type"
+        save_as: "input_type"
+        values:
+          name: "PA Aggr Sum 1 Input Type"
+          code: "AGGRSUM1"
+          default_amount: 1000.0
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Aggr Sum 1 Test Employee"
+
+      - step: "Create payroll agreement"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+
+      - step: "Create input line for agreement, code AGGRSUM1 amount 1000"
+        action: "create"
+        model: "payroll_agreement_input"
+        save_as: "input_line"
+        values:
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          input_type_id: "EVAL: registry['input_type'].id"
+          amount: 1000.0
+
+      - step: "Confirm agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Approve agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after approve"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Open agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Invalidate cache after open"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Populate salary rules"
+        action: "call"
+        target: "agreement"
+        method: "action_populate_salary_rule_ids"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after populate"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Create payslip with payroll agreement"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['salary_structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          date_start: 2025-01-01
+          date_end: 2025-01-31
+          date: 2025-01-31
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert payslip has one line summing AGGRSUM1"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+          line_ids.total:
+            type: "value"
+            expected: 1000.0
+
+  - name: "Payroll Agreement - aggr_inputs.sum() accumulates duplicate codes"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "PA Aggr Sum 2 Debit Account"
+          code: "PAAG2DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "PA Aggr Sum 2 Credit Account"
+          code: "PAAG2CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "PA Aggr Sum 2 Payroll Journal"
+          code: "PAAG2"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "rule_category"
+        values:
+          name: "PA Aggr Sum 2 Rule Category"
+          code: "PAAG2CAT"
+
+      - step: "Create salary rule reading aggr_inputs.sum"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "salary_rule"
+        values:
+          name: "PA Aggr Sum 2 Salary Rule"
+          code: "PAAG2RULE"
+          category_id: "EVAL: registry['rule_category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = aggr_inputs.sum('AGGRSUM2')"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Aggr Sum 2 Salary Structure"
+          code: "PAAG2STR"
+          rule_ids:
+            - "EVAL: registry['salary_rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "PA Aggr Sum 2 Payslip Type"
+          code: "PAAG2PSLTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create payroll agreement type"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Aggr Sum 2 Agreement Type"
+          code: "PAAG2AT"
+
+      - step: "Create payroll agreement input type"
+        action: "create"
+        model: "payroll_agreement_input_type"
+        save_as: "input_type"
+        values:
+          name: "PA Aggr Sum 2 Input Type"
+          code: "AGGRSUM2"
+          default_amount: 750.0
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Aggr Sum 2 Test Employee"
+
+      - step: "Create payroll agreement"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+
+      - step: "Create first input line, code AGGRSUM2 amount 750"
+        action: "create"
+        model: "payroll_agreement_input"
+        save_as: "input_line_1"
+        values:
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          input_type_id: "EVAL: registry['input_type'].id"
+          amount: 750.0
+
+      - step: "Create second input line, code AGGRSUM2 amount 250"
+        action: "create"
+        model: "payroll_agreement_input"
+        save_as: "input_line_2"
+        values:
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          input_type_id: "EVAL: registry['input_type'].id"
+          amount: 250.0
+
+      - step: "Confirm agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Approve agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after approve"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Open agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Invalidate cache after open"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Populate salary rules"
+        action: "call"
+        target: "agreement"
+        method: "action_populate_salary_rule_ids"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after populate"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Create payslip with payroll agreement"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['salary_structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          date_start: 2025-01-01
+          date_end: 2025-01-31
+          date: 2025-01-31
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert payslip line sums both AGGRSUM2 rows, none overwritten"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+          line_ids.total:
+            type: "value"
+            expected: 1000.0
+
+  - name: "Payroll Agreement - aggr_inputs.sum() unknown code returns 0.0"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "PA Aggr Sum 3 Debit Account"
+          code: "PAAG3DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "PA Aggr Sum 3 Credit Account"
+          code: "PAAG3CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "PA Aggr Sum 3 Payroll Journal"
+          code: "PAAG3"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "rule_category"
+        values:
+          name: "PA Aggr Sum 3 Rule Category"
+          code: "PAAG3CAT"
+
+      - step: "Create salary rule reading an unknown aggr_inputs code"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "salary_rule"
+        values:
+          name: "PA Aggr Sum 3 Salary Rule"
+          code: "PAAG3RULE"
+          category_id: "EVAL: registry['rule_category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = aggr_inputs.sum('AGGRNONE') + 1"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Aggr Sum 3 Salary Structure"
+          code: "PAAG3STR"
+          rule_ids:
+            - "EVAL: registry['salary_rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "PA Aggr Sum 3 Payslip Type"
+          code: "PAAG3PSLTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create payroll agreement type"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Aggr Sum 3 Agreement Type"
+          code: "PAAG3AT"
+
+      - step: "Create payroll agreement input type unrelated to AGGRNONE"
+        action: "create"
+        model: "payroll_agreement_input_type"
+        save_as: "input_type"
+        values:
+          name: "PA Aggr Sum 3 Input Type"
+          code: "AGGROTHER3"
+          default_amount: 500.0
+
+      - step: "Create employee"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Aggr Sum 3 Test Employee"
+
+      - step: "Create payroll agreement"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+
+      - step: "Create input line with an unrelated code AGGROTHER3"
+        action: "create"
+        model: "payroll_agreement_input"
+        save_as: "input_line"
+        values:
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          input_type_id: "EVAL: registry['input_type'].id"
+          amount: 500.0
+
+      - step: "Confirm agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after confirm"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Approve agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after approve"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Open agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+
+      - step: "Invalidate cache after open"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Populate salary rules"
+        action: "call"
+        target: "agreement"
+        method: "action_populate_salary_rule_ids"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after populate"
+        action: "call"
+        target: "agreement"
+        method: "invalidate_cache"
+
+      - step: "Create payslip with payroll agreement"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['salary_structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          payroll_agreement_id: "EVAL: registry['agreement'].id"
+          date_start: 2025-01-01
+          date_end: 2025-01-31
+          date: 2025-01-31
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert unknown code resolved as 0.0, not an exception"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+          line_ids.total:
+            type: "value"
+            expected: 1.0
+
+  - name: "Payroll Agreement - aggr_inputs.sum() without an agreement"
+    steps:
+      - step: "Get expense account type"
+        action: "ref"
+        xml_id: "account.data_account_type_expenses"
+        save_as: "expense_account_type"
+
+      - step: "Create debit account"
+        action: "create"
+        model: "account.account"
+        save_as: "debit_account"
+        values:
+          name: "PA Aggr Sum 4 Debit Account"
+          code: "PAAG4DB"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create credit account"
+        action: "create"
+        model: "account.account"
+        save_as: "credit_account"
+        values:
+          name: "PA Aggr Sum 4 Credit Account"
+          code: "PAAG4CR"
+          user_type_id: "EVAL: registry['expense_account_type'].id"
+
+      - step: "Create payroll journal"
+        action: "create"
+        model: "account.journal"
+        save_as: "journal"
+        values:
+          name: "PA Aggr Sum 4 Payroll Journal"
+          code: "PAAG4"
+          type: "general"
+
+      - step: "Create salary rule category"
+        action: "create"
+        model: "hr.salary_rule_category"
+        save_as: "rule_category"
+        values:
+          name: "PA Aggr Sum 4 Rule Category"
+          code: "PAAG4CAT"
+
+      - step: "Create salary rule reading aggr_inputs.sum without agreement"
+        action: "create"
+        model: "hr.salary_rule"
+        save_as: "salary_rule"
+        values:
+          name: "PA Aggr Sum 4 Salary Rule"
+          code: "PAAG4RULE"
+          category_id: "EVAL: registry['rule_category'].id"
+          debit_account_id: "EVAL: registry['debit_account'].id"
+          credit_account_id: "EVAL: registry['credit_account'].id"
+          condition_python: "result = True"
+          amount_python: "result = aggr_inputs.sum('AGGRSUM1') + 2"
+          sequence: 10
+
+      - step: "Create salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Aggr Sum 4 Salary Structure"
+          code: "PAAG4STR"
+          rule_ids:
+            - "EVAL: registry['salary_rule'].id"
+
+      - step: "Create payslip type"
+        action: "create"
+        model: "hr.payslip_type"
+        save_as: "payslip_type"
+        values:
+          name: "PA Aggr Sum 4 Payslip Type"
+          code: "PAAG4PSLTYPE"
+          journal_id: "EVAL: registry['journal'].id"
+
+      - step: "Create employee without a payroll agreement"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Aggr Sum 4 Test Employee"
+
+      - step: "Create payslip without payroll_agreement_id"
+        action: "create"
+        model: "hr.payslip"
+        save_as: "payslip"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['payslip_type'].id"
+          structure_id: "EVAL: registry['salary_structure'].id"
+          journal_id: "EVAL: registry['journal'].id"
+          date_start: 2025-01-01
+          date_end: 2025-01-31
+          date: 2025-01-31
+
+      - step: "Assert payslip has no payroll agreement"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          payroll_agreement_id:
+            type: "value"
+            operator: "is_falsy"
+
+      - step: "Compute payslip"
+        action: "call"
+        target: "payslip"
+        method: "action_compute_payslip"
+        as_user: "base.user_admin"
+
+      - step: "Invalidate cache after compute"
+        action: "call"
+        target: "payslip"
+        method: "invalidate_cache"
+
+      - step: "Assert aggr_inputs stays available and sum() is 0.0"
+        action: "assert"
+        target: "payslip"
+        asserts:
+          line_ids:
+            type: "o2m"
+            check: "count"
+            expected_count: 1
+          line_ids.total:
+            type: "value"
+            expected: 2.0

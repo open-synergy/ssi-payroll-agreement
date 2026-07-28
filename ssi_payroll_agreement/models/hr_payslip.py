@@ -8,17 +8,28 @@ from odoo.addons.ssi_hr_payroll.models.hr_payslip import BrowsableObject
 
 
 class AgreementInputLine(BrowsableObject):
+    """Expose a payroll agreement's input amounts by input type code.
+
+    Backs the ``aggr_inputs`` local variable made available to salary
+    rule Python code (``condition_python`` / ``amount_python``).
+    """
+
     def sum(self, code):
-        self.env.cr.execute(
-            """
-            SELECT sum(b.amount) as sum
-            FROM payroll_agreement as a
-            JOIN payroll_agreement_input as b ON a.id=b.employee_id
-            JOIN payroll_agreement_input_type as c ON b.input_type_id=c.id
-            WHERE a.id = %s AND c.code = %s""",
-            (self.employee_id, code),
-        )
-        return self.env.cr.fetchone()[0] or 0.0
+        """Sum a payroll agreement input's ``amount`` for a code.
+
+        Reads directly from ``self.dict`` (built by
+        :meth:`HrPayslip._get_base_localdict`), never from
+        ``self.env.cr``. Each key maps to a ``payroll_agreement_input``
+        recordset that may hold more than one row for the same code, so
+        the total is computed with a recordset ``sum()``.
+
+        :param code: ``payroll_agreement_input_type`` code to sum
+        :return: summed ``amount`` as a ``float``, or ``0.0`` if the
+            code is not present in the dict
+        """
+        if code not in self.dict:
+            return 0.0
+        return sum(self.dict[code].mapped("amount"))
 
 
 class HrPayslip(models.Model):
@@ -44,12 +55,31 @@ class HrPayslip(models.Model):
         return res
 
     def _get_base_localdict(self, payslip):
+        """Add ``aggr_inputs`` to the salary rule evaluation localdict.
+
+        ``aggr_inputs`` is an :class:`AgreementInputLine` wrapping a
+        dict keyed by ``payroll_agreement_input_type.code``, where each
+        value is the **recordset** of ``payroll_agreement_input`` rows
+        sharing that code on the payslip's payroll agreement — rows are
+        accumulated per code, never overwritten, since there is no
+        unique constraint on (``payroll_agreement_id``,
+        ``input_type_id``). It is the extension point salary rules use
+        to read agreement input amounts via ``aggr_inputs.sum(code)``.
+
+        :param payslip: the ``hr.payslip`` browse record being computed
+        :return: the localdict returned by ``super()``, extended with
+            ``aggr_inputs``
+        """
         _super = super(HrPayslip, self)
         res = _super._get_base_localdict(payslip)
         aggr_inputs_dict = {}
+        empty_input = self.env["payroll_agreement_input"]
 
         for aggr_input_line in self.payroll_agreement_id.input_line_ids:
-            aggr_inputs_dict[aggr_input_line.input_type_id.code] = aggr_input_line
+            code = aggr_input_line.input_type_id.code
+            aggr_inputs_dict[code] = (
+                aggr_inputs_dict.get(code, empty_input) | aggr_input_line
+            )
 
         aggr_inputs = AgreementInputLine(
             payslip.employee_id.id, aggr_inputs_dict, self.env
