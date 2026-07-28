@@ -33,6 +33,12 @@ class AgreementInputLine(BrowsableObject):
 
 
 class HrPayslip(models.Model):
+    """
+    Links a payslip to the payroll agreement its salary structure
+    and salary rules are drawn from, when the employee's payroll
+    ``method`` is ``"agreement"``.
+    """
+
     _inherit = "hr.payslip"
 
     payroll_agreement_id = fields.Many2one(
@@ -46,6 +52,14 @@ class HrPayslip(models.Model):
     )
 
     def _get_salary_rules(self):
+        """Use the agreement's salary rules instead of the structure's.
+
+        Overridden so that, when ``payroll_agreement_id`` is set,
+        its ``salary_rule_ids`` (sorted by sequence) replace the
+        rules ``super()`` would otherwise derive from the salary
+        structure — letting an agreement narrow or reorder which
+        rules apply to the payslip.
+        """
         _super = super(HrPayslip, self)
         res = _super._get_salary_rules()
         if self.payroll_agreement_id:
@@ -89,6 +103,18 @@ class HrPayslip(models.Model):
         return res
 
     def _get_payroll_agreement(self):
+        """Find the payroll agreement to use for this payslip.
+
+        Looks up the employee's ``payroll_agreement_ids`` dated on
+        or before ``date_start`` and in state ``open`` or ``done``,
+        returning the first match.
+
+        :raises ValidationError: if the employee has no active
+            payroll agreement (``employee_id.payroll_agreement_id``
+            is not set), or if none of their ``open``/``done``
+            agreements applies on ``date_start``.
+        :return: the matching ``payroll_agreement`` record
+        """
         self.ensure_one()
         result = False
 
@@ -125,6 +151,12 @@ class HrPayslip(models.Model):
         "date_start",
     )
     def onchange_payroll_agreement_id(self):
+        """Recompute the payroll agreement when method/start date change.
+
+        Clears ``payroll_agreement_id`` first, then resolves it
+        again via ``_get_payroll_agreement`` when ``method`` is
+        ``"agreement"`` and ``date_start`` is set.
+        """
         self.payroll_agreement_id = False
         if self.method == "agreement" and self.date_start:
             self.payroll_agreement_id = self._get_payroll_agreement()
@@ -133,6 +165,12 @@ class HrPayslip(models.Model):
         "payroll_agreement_id",
     )
     def onchange_aggrement_structure_id(self):
+        """Sync ``structure_id`` with the resolved payroll agreement.
+
+        Takes the salary structure from ``payroll_agreement_id``
+        when set; otherwise falls back to ``onchange_structure_id``
+        so a manually assigned employee structure is used instead.
+        """
         if self.payroll_agreement_id:
             self.structure_id = self.payroll_agreement_id.salary_structure_id
         else:

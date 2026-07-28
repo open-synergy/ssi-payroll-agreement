@@ -9,6 +9,18 @@ from odoo.addons.ssi_decorator import ssi_decorator
 
 
 class PayrollAgreement(models.Model):
+    """
+    Agreement between the company and an employee defining which
+    salary structure and salary rules apply to their payslips, plus
+    the input amounts (``input_line_ids``) those rules can read via
+    ``aggr_inputs``.
+
+    Goes through the standard SSI approval workflow (draft, confirm,
+    ready, open, done, with cancel available in between); only one
+    agreement per employee may be ``open`` at a time, enforced by
+    ``_constrains_open``.
+    """
+
     _name = "payroll_agreement"
     _inherit = [
         "mixin.employee_document",
@@ -140,10 +152,22 @@ class PayrollAgreement(models.Model):
         return view_arch
 
     def action_populate_salary_rule_ids(self):
+        """Fill ``salary_rule_ids`` from the salary structure.
+
+        Button action: calls ``_populate_salary_rule_ids`` on every
+        record in ``self``.
+        """
         for record in self:
             record._populate_salary_rule_ids()
 
     def _populate_salary_rule_ids(self):
+        """Replace ``salary_rule_ids`` with the salary structure's rules.
+
+        Reads the ordered rule list from
+        ``salary_structure_id.get_all_rules()``, sorts it by
+        sequence, and writes the resulting ids to ``salary_rule_ids``.
+        Does nothing when no ``salary_structure_id`` is set.
+        """
         self.ensure_one()
         if self.salary_structure_id:
             rule_list = self.salary_structure_id.get_all_rules()
@@ -155,6 +179,15 @@ class PayrollAgreement(models.Model):
         "state",
     )
     def _constrains_open(self):
+        """Ensure at most one ``open`` agreement exists per employee.
+
+        Skips records not in the ``open`` state. For the rest, counts
+        sibling ``payroll_agreement`` records of the same employee
+        that are already ``open``.
+
+        :raises ValidationError: if another ``payroll_agreement`` for
+            the same employee is already in state ``open``.
+        """
         for record in self.sudo():
             if record.state != "open":
                 break
