@@ -6,6 +6,13 @@ from odoo import api, fields, models
 
 
 class HrEmployee(models.Model):
+    """
+    Adds payroll agreement tracking to ``hr.employee``: the
+    employee's currently active agreement, and the salary structure
+    resolved either from that agreement or from a manually assigned
+    one.
+    """
+
     _inherit = "hr.employee"
 
     payroll_agreement_ids = fields.One2many(
@@ -19,6 +26,13 @@ class HrEmployee(models.Model):
         "payroll_agreement_ids.state",
     )
     def _compute_payroll_agreement_id(self):
+        """Resolve the employee's currently active payroll agreement.
+
+        An agreement is "active" when its ``state`` is ``open``;
+        among the employee's ``payroll_agreement_ids`` matching that
+        state, the first one found is used. Resolves to ``False``
+        when none is open.
+        """
         for record in self:
             record.payroll_agreement_id = False
             active_agreement_id = record.payroll_agreement_ids.filtered(
@@ -55,6 +69,12 @@ class HrEmployee(models.Model):
         "manual_salary_structure_id",
     )
     def _compute_salary_structure_id(self):
+        """Resolve the salary structure to use for payroll.
+
+        Defaults to ``manual_salary_structure_id``; overridden by
+        the active payroll agreement's ``salary_structure_id`` when
+        ``method`` is ``"agreement"``.
+        """
         for record in self:
             record.salary_structure_id = record.manual_salary_structure_id
             if record.method == "agreement":

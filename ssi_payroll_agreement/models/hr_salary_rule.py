@@ -6,10 +6,29 @@ from odoo import api, models
 
 
 class HrSalaryRule(models.Model):
+    """
+    Adds default ``safe_eval`` code templates for salary rules that
+    document the ``aggr_inputs`` variable this module injects into
+    the evaluation localdict.
+    """
+
     _inherit = "hr.salary_rule"
 
     @api.model
     def _default_condition_python(self):
+        """Return the default ``safe_eval`` template for ``condition_python``.
+
+        The returned source is a comment block documenting the
+        variables available in the localdict — ``payslip``,
+        ``employee``, ``contract``, ``rules``, ``categories``,
+        ``worked_days``, ``inputs``, ``emp_inputs``, and
+        ``aggr_inputs`` (the payroll agreement inputs added by this
+        module) — followed by a statement assigning the boolean
+        outcome to the ``result`` variable, which is what
+        ``safe_eval`` reads back.
+
+        :return: the default Python source as a ``str``
+        """
         default = """# Available variables:
 #----------------------
 # payslip: object containing the payslips
@@ -30,6 +49,19 @@ result = True"""
 
     @api.model
     def _default_amount_python(self):
+        """Return the default ``safe_eval`` template for ``amount_python``.
+
+        The returned source is a comment block documenting the
+        variables available in the localdict — ``payslip``,
+        ``employee``, ``contract``, ``rules``, ``categories``,
+        ``worked_days``, ``inputs``, ``emp_inputs``, and
+        ``aggr_inputs`` (the payroll agreement inputs added by this
+        module) — followed by a statement assigning the computed
+        amount to the ``result`` variable, which is what
+        ``safe_eval`` reads back.
+
+        :return: the default Python source as a ``str``
+        """
         default = """# Available variables:
 #----------------------
 # payslip: object containing the payslips

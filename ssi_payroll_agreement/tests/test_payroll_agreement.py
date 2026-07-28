@@ -9,7 +9,10 @@ from odoo.tests import Form, tagged
 
 @tagged("post_install", "-at_install")
 class TestPayrollAgreement(YamlTransactionCase):
+    """Test payroll agreement master data, workflow, and inputs."""
+
     def test_payroll_agreement(self):
+        """Run the payroll agreement YAML scenario suite."""
         self.run_yaml_scenario("test_data_payroll_agreement.yaml")
 
     def test_onchange_input_type_id(self):

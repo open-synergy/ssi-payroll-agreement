@@ -6,6 +6,13 @@ from odoo import api, fields, models
 
 
 class PayrollAgreementInput(models.Model):
+    """
+    One input amount line of a ``payroll_agreement``, keyed by a
+    ``payroll_agreement_input_type``. Read from salary rule Python
+    code via ``aggr_inputs.sum(code)`` (see
+    ``HrPayslip._get_base_localdict``).
+    """
+
     _name = "payroll_agreement_input"
 
     _description = "Payroll Agreement Input"

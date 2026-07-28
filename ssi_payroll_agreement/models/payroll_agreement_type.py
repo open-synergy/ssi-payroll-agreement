@@ -6,6 +6,11 @@ from odoo import fields, models
 
 
 class PayrollAgreementType(models.Model):
+    """
+    Master data classifying ``payroll_agreement`` records (e.g.
+    permanent vs. contractual agreements).
+    """
+
     _name = "payroll_agreement_type"
     _description = "Payroll Agreement Type"
     _inherit = ["mixin.master_data"]
