@@ -139,6 +139,28 @@ odoo.define("ssi_payroll_agreement.payroll_agreement_tour", function (require) {
                     content: "Click Populate",
                     trigger: "button[name='action_populate_salary_rule_ids']",
                 },
+                {
+                    // Populate is a type="object" button on a still-unsaved
+                    // record, so the client silently saves (create) and
+                    // reloads (read) the whole form before invoking it. If
+                    // the tour proceeds to add an input line before that
+                    // reload lands, the reload wipes the not-yet-saved new
+                    // row (its data only exists client-side) and the next
+                    // step's trigger never appears. The breadcrumb title
+                    // falls back to the literal "New" until the record has
+                    // a server-assigned display_name (basic_model.js
+                    // getName), so waiting for it to change away from "New"
+                    // is a data-independent proof the save/reload already
+                    // settled -- unlike waiting for a populated salary rule
+                    // row, which never appears when the test's salary
+                    // structure carries no rules.
+                    content: "Wait for the record to be saved by Populate",
+                    trigger:
+                        ".o_control_panel .breadcrumb-item.active:not(:contains(New))",
+                    run: function () {
+                        // Assertion only.
+                    },
+                },
 
                 // Flow 5 -- On the Inputs tab, add one line: Input Type,
                 // Amount is auto-filled by onchange.
