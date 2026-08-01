@@ -19,6 +19,13 @@ It is ideal for HR departments and payroll administrators who need to maintain c
 - Companies needing to track and manage payroll-related commitments
 - Businesses that require audit trails for payroll agreement changes
 
+================
+Work Instruction
+================
+
+* `Payroll Agreement Type <docs/payroll_agreement_type/index.html>`_
+* `Payroll Agreement Input Type <docs/payroll_agreement_input_type/index.html>`_
+
 ===================
 🚀 **Installation**
 ===================
