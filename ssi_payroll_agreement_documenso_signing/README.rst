@@ -10,6 +10,12 @@ This module integrates Documenso digital signing into the Payroll Agreement modu
 It adds a Documenso signing tab to the payroll agreement form view.
 
 
+Work Instruction
+================
+
+* `Payroll Agreement <docs/payroll_agreement/index.html>`_
+
+
 Bug Tracker
 ===========
 
