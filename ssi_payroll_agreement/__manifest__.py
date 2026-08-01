@@ -15,6 +15,7 @@
         "ssi_hr_payroll_batch",
         "ssi_transaction_ready_mixin",
         "ssi_transaction_open_mixin",
+        "web_tour",
     ],
     "data": [
         "security/ir_module_category_data.xml",
@@ -32,6 +33,7 @@
         "views/payroll_agreement_type_views.xml",
         "views/hr_employee_views.xml",
         "views/hr_payslip_views.xml",
+        "views/assets.xml",
     ],
     "post_init_hook": "post_init_hook",
 }
