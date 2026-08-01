@@ -12,10 +12,12 @@
     "depends": [
         "ssi_payroll_agreement",
         "ssi_operating_unit_mixin",
+        "web_tour",
     ],
     "data": [
         "security/res_group/res_group_data.xml",
         "security/ir_rule/ir_rule_data.xml",
         "views/payroll_agreement_views.xml",
+        "views/assets.xml",
     ],
 }
