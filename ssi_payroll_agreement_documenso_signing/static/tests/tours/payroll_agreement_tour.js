@@ -86,9 +86,18 @@ odoo.define("ssi_payroll_agreement_documenso_signing.payroll_agreement_tour", fu
                 trigger: ".o_notebook .nav-link:contains(Signature Requests)",
             },
             {
+                // Anchored on the group label rather than the (currently
+                // empty) `approval_signature_request_id` many2one widget
+                // itself -- a many2one rendered with no value has no text
+                // node inside its link, so it collapses to a zero-size
+                // box and jQuery's `:visible` (offsetWidth/offsetHeight)
+                // never matches it, hanging the tour until timeout. The
+                // group label always has text, so it is a stable proxy
+                // for "the Approval Signing Request group is rendered".
                 content:
-                    "Signature Requests tab shows the Approval Signature Request field",
-                trigger: ".o_field_widget[name='approval_signature_request_id']",
+                    "Signature Requests tab shows the Approval Signing " +
+                    "Request group",
+                trigger: ".o_horizontal_separator:contains(Approval Signing Request)",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                     // The tour stops here -- it does not click Approve, does
