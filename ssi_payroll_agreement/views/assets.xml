@@ -11,6 +11,10 @@
         <xpath expr="." position="inside">
             <script
                 type="text/javascript"
+                src="/ssi_payroll_agreement/static/tests/tours/payroll_agreement_tour.js"
+            />
+            <script
+                type="text/javascript"
                 src="/ssi_payroll_agreement/static/tests/tours/payroll_agreement_type_tour.js"
             />
             <script
