@@ -154,7 +154,7 @@ odoo.define("ssi_payroll_agreement.payroll_agreement_tour", function (require) {
                 {
                     content: "Select the Input Type",
                     trigger:
-                        ".o_selected_row .o_field_many2one[name='input_type_id'] input",
+                        ".o_selected_row .o_field_widget[name='input_type_id'] input",
                     run: "text Tour PA Input Type",
                 },
                 {
