@@ -26,11 +26,10 @@ odoo.define("ssi_payroll_agreement.payroll_agreement_input_type_tour", function 
                     '.o_menu_sections [data-menu-xmlid="ssi_hr.menu_human_resource_configuration"]',
             },
             {
-                content: "Open the Payroll Agreement menu",
-                trigger:
-                    '.o_menu_sections [data-menu-xmlid="ssi_payroll_agreement.payroll_agreement_configuration_menu"]',
-            },
-            {
+                // "Payroll Agreement" is a non-actionable grouping header
+                // (renders as a plain <div class="dropdown-header">, not a
+                // clickable [data-menu-xmlid] item) — go straight to the
+                // Input Types leaf item underneath it.
                 content: "Open the Input Types menu",
                 trigger:
                     '.o_menu_sections [data-menu-xmlid="ssi_payroll_agreement.payroll_agreement_input_type_menu"]',
