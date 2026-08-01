@@ -132,11 +132,17 @@ class TestUiPayrollAgreement(HttpSavepointCase):
         cls.agreement_start.invalidate_cache()
         cls.agreement_start.action_approve_approval()
 
-        # Pre-Condition 09-finish.md: In Progress.
+        # Pre-Condition 09-finish.md: In Progress. A second
+        # invalidate_cache() is needed before action_open(): open_ok
+        # is computed from policy.template, and the "ready" state
+        # just written by the previous action_ready() call (triggered
+        # internally by action_approve_approval()) must be visible
+        # before open_ok is (re)computed for the current environment.
         cls.agreement_finish = _create_agreement("Finish")
         cls.agreement_finish.action_confirm()
         cls.agreement_finish.invalidate_cache()
         cls.agreement_finish.action_approve_approval()
+        cls.agreement_finish.invalidate_cache()
         cls.agreement_finish.action_open()
 
         # Pre-Condition 10-cancel.md: Draft (one of the allowed
