@@ -20,6 +20,12 @@ independently.
 - Multi-division companies needing to restrict payroll agreement visibility per unit
 - Businesses using operating unit-based access control for HR documents
 
+================
+Work Instruction
+================
+
+* `Payroll Agreement <docs/payroll_agreement/index.html>`_
+
 ===================
 🚀 **Installation**
 ===================
