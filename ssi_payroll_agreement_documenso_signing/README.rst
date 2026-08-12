@@ -14,6 +14,7 @@ Work Instruction
 ================
 
 * `Payroll Agreement <docs/payroll_agreement/index.html>`_
+* `Create Signing Request - Payroll Agreement <docs/payroll_agreement/index.html>`_
 
 
 Bug Tracker
