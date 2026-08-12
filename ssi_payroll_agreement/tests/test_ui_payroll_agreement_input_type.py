@@ -2,11 +2,11 @@
 # Copyright 2026 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo.tests import HttpCase, tagged
+from odoo.tests import HttpSavepointCase, tagged
 
 
 @tagged("post_install", "-at_install")
-class TestUiPayrollAgreementInputType(HttpCase):
+class TestUiPayrollAgreementInputType(HttpSavepointCase):
     """Tour tests for the ``payroll_agreement_input_type`` work instructions."""
 
     def test_create(self):
