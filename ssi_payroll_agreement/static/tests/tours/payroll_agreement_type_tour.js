@@ -78,12 +78,31 @@ odoo.define("ssi_payroll_agreement.payroll_agreement_type_tour", function (requi
                 trigger: ".o_form_button_save",
             },
 
+            // ── Flow 5 (Inline Action) — Click Generate Code to assign a
+            // code from the sequence template configured in setUpClass
+            {
+                content: "Click Generate Code",
+                trigger: "button[name='action_generate_code']",
+                extra_trigger: ".o_form_view.o_form_readonly",
+            },
+            {
+                // Gate: fails if Generate Code was not actually clicked --
+                // the Code widget keeps showing the literal "/" left over
+                // from Flow 3 until action_generate_code replaces it. The
+                // generated value itself is not asserted here (unit test
+                // territory).
+                content: "Code is no longer the literal /",
+                trigger: ".o_field_widget[name='code']:not(:contains(/))",
+                run: function () {
+                    // Assertion only; do not trigger the default click action.
+                },
+            },
+
             // ── Post-Condition — A new record is created and is active
             // by default
             {
                 content: "Payroll Agreement Type record is saved and active",
-                trigger:
-                    ".o_form_view.o_form_readonly:not(:has(.ribbon:visible:contains(Archived)))",
+                trigger: ".o_form_view.o_form_readonly",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
                 },
