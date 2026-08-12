@@ -209,6 +209,18 @@ odoo.define("ssi_payroll_agreement.payroll_agreement_tour", function (require) {
                         // Assertion only.
                     },
                 },
+                {
+                    // Post-Condition -- the new record is created in
+                    // Draft status. Only the statusbar is asserted (the
+                    // user-visible surface); the `state` field value
+                    // itself is not asserted here.
+                    content: "Status is Draft",
+                    trigger:
+                        ".o_statusbar_status .o_arrow_button[data-value='draft'].btn-primary",
+                    run: function () {
+                        // Assertion only.
+                    },
+                },
 
                 // Post-Condition -- back on the Agreements list, the new
                 // record is visible.
@@ -455,9 +467,13 @@ odoo.define("ssi_payroll_agreement.payroll_agreement_tour", function (require) {
                 {
                     // Wizard: do NOT prefix the trigger with ".modal" in
                     // 14.0 -- see patterns.md skill
-                    // odoo-development-ui-test §H.
+                    // odoo-development-ui-test §H. Gate on the
+                    // cancel_reason_id widget instead of ".o_form_view"
+                    // -- ".o_form_view" also matches the record's own
+                    // form view underneath the wizard, so it passes even
+                    // when the wizard never actually rendered.
                     content: "Wizard is open",
-                    trigger: ".o_form_view",
+                    trigger: ".o_field_widget[name='cancel_reason_id']",
                     run: function () {
                         // Assertion only.
                     },

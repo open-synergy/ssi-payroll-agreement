@@ -11,6 +11,8 @@
 
 - **Record:** Status is **Draft**, **Waiting for Approval**, **Ready to Process**, **In
   Progress**, or **Done**.
+- **Data:** An active `base.cancel_reason` record exists that applies to this model
+  (either global or linked to it).
 - **Config:** An active `policy.template` (**Standard**) grants `cancel_ok` for that
   state to the actor's group.
 - **Access:** User is in group `Validator` (`payroll_agreement_validator_group`).
@@ -22,6 +24,7 @@
 3. Click the **Cancel** button.
 4. In the wizard that appears, select the **Cancellation Reason**.
 5. Click **Confirm**.
+6. Click **OK** on the confirmation dialog.
 
 ## Post-Condition
 

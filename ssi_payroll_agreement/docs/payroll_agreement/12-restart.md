@@ -5,7 +5,7 @@
 > **Menu:** Human Resource > Payroll > Agreements\
 > **Actor:** user in group `Validator` (`payroll_agreement_validator_group`)\
 > **State:** `cancel` | `reject` → `draft`\
-> **Requires:** `10-cancel`
+> **Requires:** `10-cancel`, `06-reject`
 
 ## Pre-Condition
 

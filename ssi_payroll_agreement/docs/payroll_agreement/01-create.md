@@ -10,6 +10,7 @@
 
 ## Pre-Condition
 
+- **Data:** An active `hr.employee` record exists to select as **Employee**.
 - **Data:** An active `payroll_agreement_type` record exists to select as **Type** (see
   `payroll_agreement_type/01-create`).
 - **Data:** An active `hr.salary_structure` record exists to select as **Salary
@@ -19,6 +20,8 @@
 - **Data:** No other **payroll_agreement** for the same **Employee** may already be **In
   Progress** — this is only enforced when the agreement is started, not at creation time
   (see `07-start`).
+- **Config:** An active `sequence.template` (**Standard**) exists for this model, as
+  defined by `data/sequence_template_data.xml`.
 - **Access:** User is in group `User` (`payroll_agreement_user_group`).
 
 ## Flow
