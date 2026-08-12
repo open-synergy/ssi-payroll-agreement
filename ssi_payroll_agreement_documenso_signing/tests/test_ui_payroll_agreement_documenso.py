@@ -91,6 +91,25 @@ class TestUiPayrollAgreementDocumenso(HttpSavepointCase):
                 }
             )
         )
+        # ``documenso.signature.request.py3o_report_id`` is required, and the
+        # wizard copies it from the signing template's ``py3o_report_id`` on
+        # confirm -- without a matching report the create() call in
+        # ``action_confirm`` raises a validation error and the wizard never
+        # closes. ``ssi_payroll_agreement`` ships no py3o report of its own,
+        # so a minimal one is created here for the tour's fixture only.
+        cls.documenso_py3o_report = (
+            cls.env["ir.actions.report"]
+            .with_user(cls.admin)
+            .create(
+                {
+                    "name": "Tour PA Documenso Py3o Report",
+                    "model": "payroll_agreement",
+                    "report_name": "ssi_payroll_agreement_documenso_signing.tour_report",
+                    "report_type": "py3o",
+                    "py3o_filetype": "pdf",
+                }
+            )
+        )
         cls.documenso_signing_template = (
             cls.env["documenso.signing.template"]
             .with_user(cls.admin)
@@ -99,6 +118,7 @@ class TestUiPayrollAgreementDocumenso(HttpSavepointCase):
                     "name": "Tour PA Documenso Signing Template",
                     "code": "TOURPADST",
                     "res_model": "payroll_agreement",
+                    "py3o_report_id": cls.documenso_py3o_report.id,
                 }
             )
         )

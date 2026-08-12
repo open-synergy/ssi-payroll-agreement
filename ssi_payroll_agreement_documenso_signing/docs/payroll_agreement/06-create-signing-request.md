@@ -13,7 +13,9 @@
   present on the form regardless of status, since
   `_documenso_signing_create_page = True` is set unconditionally by this module.
 - **Config:** An active `documenso.signing.template` exists with **Source Model** set to
-  `payroll_agreement`.
+  `payroll_agreement` and a **Py3o Report** configured. The Py3o Report is required
+  because the created `documenso.signature.request` copies it from the template and
+  requires it to save; without one, clicking **Create** in step 6 fails.
 - **Config:** An active `documenso.backend` exists.
 - **Access:** User is in group `User` (`payroll_agreement_user_group`) — the button
   carries no additional group restriction beyond normal record access.
