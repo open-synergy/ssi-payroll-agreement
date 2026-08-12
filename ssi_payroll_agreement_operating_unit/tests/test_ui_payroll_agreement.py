@@ -2,11 +2,11 @@
 # Copyright 2026 PT. Simetri Sinergi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo.tests import HttpCase, tagged
+from odoo.tests import HttpSavepointCase, tagged
 
 
 @tagged("post_install", "-at_install")
-class TestUiPayrollAgreement(HttpCase):
+class TestUiPayrollAgreement(HttpSavepointCase):
     """Tour test for the Operating Unit field on ``payroll_agreement`` create."""
 
     def setUp(self):
@@ -19,11 +19,9 @@ class TestUiPayrollAgreement(HttpCase):
         needs at least one operating unit assigned so the field has a
         meaningful (non-empty) allowed set.
 
-        Overrides ``setUp`` rather than ``setUpClass`` because
-        ``HttpCase``/``TransactionCase`` only expose ``self.env``
-        per-test (set up in ``setUp``); ``cls.env`` is never assigned
-        at the class level (same pattern as
-        ``ssi_loan_operating_unit/tests/test_ui_loan_in.py``).
+        Data is set up per-test in ``setUp`` -- this single tour is
+        the only consumer, so there is no shared class-level fixture
+        to justify ``setUpClass`` instead.
         """
         super().setUp()
         self.user_admin = self.env.ref("base.user_admin")
