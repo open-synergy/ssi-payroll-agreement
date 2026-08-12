@@ -552,4 +552,63 @@ odoo.define("ssi_payroll_agreement.payroll_agreement_tour", function (require) {
             ]
         )
     );
+
+    // IK: docs/payroll_agreement/14-restart-approval.md
+    tour.register(
+        "ssi_payroll_agreement_payroll_agreement_restart_approval",
+        {
+            test: true,
+            url: "/web",
+        },
+        [].concat(
+            // Flow 1 -- Open the Agreements menu.
+            openAgreementList(),
+            // Flow 2 -- Open the record to restart the approval process
+            // for.
+            openAgreementByEmployee("Tour PA Employee Restart Approval"),
+            [
+                // Flow 3 -- Click the Restart Approval Process button.
+                {
+                    content: "Click the Restart Approval Process button",
+                    trigger:
+                        ".o_statusbar_buttons button[name='action_reload_approval_template']",
+                    extra_trigger: ".o_form_view",
+                },
+
+                // Flow 4 -- Click OK on the confirmation dialog.
+                {
+                    content: "Confirm the dialog",
+                    trigger: ".modal-footer button.btn-primary",
+                    in_modal: true,
+                },
+
+                // Post-Condition -- open the Approvals tab to observe
+                // the approver list. setUpClass leaves approval_ids
+                // empty (no approval.template was linked), so this row
+                // can only appear once the reload actually rebuilt it.
+                {
+                    content: "Open the Approvals tab",
+                    trigger: ".o_notebook .nav-link:contains(Approvals)",
+                },
+                {
+                    content: "Approver list is rendered again",
+                    trigger: ".o_field_x2many[name='approval_ids'] .o_data_row",
+                    run: function () {
+                        // Assertion only.
+                    },
+                },
+
+                // Post-Condition -- status remains Waiting for Approval;
+                // this action does not change the record's state.
+                {
+                    content: "Status is still Waiting for Approval",
+                    trigger:
+                        ".o_statusbar_status .o_arrow_button[data-value='confirm'].btn-primary",
+                    run: function () {
+                        // Assertion only.
+                    },
+                },
+            ]
+        )
+    );
 });
