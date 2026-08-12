@@ -323,6 +323,14 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache (options.auto_refresh hanya berlaku
+        # saat sebuah step menjalankan asserts) sebelum approve_ok dibaca.
+        # Tanpa ini approve_ok terbaca dari cache yang diisi action_confirm,
+        # saat approval.approval belum ada -> nilainya False, approve gagal.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement for compute test"
         action: "call"
@@ -509,6 +517,12 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve payroll agreement for payslip test"
         action: "call"
@@ -753,6 +767,12 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement"
         action: "call"
@@ -940,6 +960,12 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement"
         action: "call"
@@ -1118,6 +1144,12 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement"
         action: "call"
