@@ -215,9 +215,23 @@ odoo.define("ssi_payroll_agreement_documenso_signing.payroll_agreement_tour", fu
                 trigger: ".modal-footer button[name='action_confirm']",
             },
             {
+                // The button's return action keeps the existing breadcrumb
+                // trail and appends the new record's OWN display_name
+                // (`name_get()` on documenso.signature.request, e.g.
+                // "*20 - Tour PA Documenso Backend (draft)") -- it is NOT
+                // the static act_window "name" ("Signature Request") used
+                // in a previous version of this gate, and that display
+                // name is data-dependent (source record id + backend +
+                // state), so it is not a stable string to assert on.
+                // Anchor instead on the "Py3o Report" field, which only
+                // exists on documenso.signature.request's own form (never
+                // on the wizard or on payroll_agreement), and is filled
+                // with the fixture's report name -- a gate that cannot
+                // match anywhere earlier in this tour.
                 content: "The new Signature Request's own form is displayed",
                 trigger:
-                    ".o_control_panel .breadcrumb-item.active:contains(Signature Request)",
+                    ".o_field_widget[name='py3o_report_id']:contains(Tour PA " +
+                    "Documenso Py3o Report)",
                 extra_trigger: ".o_form_view",
                 run: function () {
                     // Assertion only; do not trigger the default click action.
