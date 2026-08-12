@@ -4,7 +4,7 @@
 # pylint: disable=C8101
 {
     "name": "Payroll Agreement",
-    "version": "14.0.1.6.2",
+    "version": "14.0.1.6.3",
     "website": "https://simetri-sinergi.id",
     "author": "OpenSynergy Indonesia, PT. Simetri Sinergi Indonesia",
     "license": "AGPL-3",
