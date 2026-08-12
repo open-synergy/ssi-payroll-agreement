@@ -16,7 +16,11 @@ class TestPayrollAgreement(YamlTransactionCase):
         self.run_yaml_scenario("test_data_payroll_agreement.yaml")
 
     def test_onchange_input_type_id(self):
-        """When input_type_id is set, amount should be updated with default_amount."""
+        """Assert ``amount`` on a single ``input_line_ids`` row via onchange.
+
+        Pure Python — trigger P3 (L-06: o2m/m2m comparison is set-based,
+        so a per-row assert like this one cannot be expressed in YAML).
+        """
         input_type = self.env["payroll_agreement_input_type"].create(
             {
                 "name": "Test Onchange Input Type",

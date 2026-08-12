@@ -1,3 +1,6 @@
+options:
+  auto_refresh: true
+
 scenarios:
   - name: "Payroll Agreement Type - Create and Update"
     steps:
@@ -213,11 +216,6 @@ scenarios:
             type: "value"
             expected: "confirm"
 
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
-
       - step: "Approve agreement"
         action: "call"
         target: "agreement"
@@ -227,11 +225,6 @@ scenarios:
           state:
             type: "value"
             expected: "ready"
-
-      - step: "Invalidate cache after approve"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Open agreement"
         action: "call"
@@ -244,11 +237,6 @@ scenarios:
           state:
             type: "value"
             expected: "open"
-
-      - step: "Invalidate cache after open"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Assert employee has active agreement"
         action: "assert"
@@ -263,11 +251,6 @@ scenarios:
         target: "agreement"
         method: "action_populate_salary_rule_ids"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after populate"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Assert salary rules populated"
         action: "assert"
@@ -340,22 +323,20 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
+        # WAJIB: memaksa refresh cache (options.auto_refresh hanya berlaku
+        # saat sebuah step menjalankan asserts) sebelum approve_ok dibaca.
+        # Tanpa ini approve_ok terbaca dari cache yang diisi action_confirm,
+        # saat approval.approval belum ada -> nilainya False, approve gagal.
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement for compute test"
         action: "call"
         target: "agreement"
         method: "action_approve_approval"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after approve"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Open agreement for compute test"
         action: "call"
@@ -364,11 +345,6 @@ scenarios:
         as_user: "base.user_admin"
         context:
           bypass_policy_check: true
-
-      - step: "Invalidate cache after open"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Assert employee compute - has active agreement"
         action: "assert"
@@ -541,22 +517,18 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve payroll agreement for payslip test"
         action: "call"
         target: "agreement"
         method: "action_approve_approval"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after approve"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Open payroll agreement for payslip test"
         action: "call"
@@ -566,21 +538,11 @@ scenarios:
         context:
           bypass_policy_check: true
 
-      - step: "Invalidate cache after open"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
-
       - step: "Populate salary rules for payslip test"
         action: "call"
         target: "agreement"
         method: "action_populate_salary_rule_ids"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after populate"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Create payslip with payroll agreement"
         action: "create"
@@ -613,11 +575,6 @@ scenarios:
         target: "payslip"
         method: "action_compute_payslip"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert payslip has lines after compute"
         action: "assert"
@@ -673,11 +630,6 @@ scenarios:
           state:
             type: "value"
             expected: "confirm"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Restart agreement to draft"
         action: "call"
@@ -815,22 +767,18 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement"
         action: "call"
         target: "agreement"
         method: "action_approve_approval"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after approve"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Open agreement"
         action: "call"
@@ -840,21 +788,11 @@ scenarios:
         context:
           bypass_policy_check: true
 
-      - step: "Invalidate cache after open"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
-
       - step: "Populate salary rules"
         action: "call"
         target: "agreement"
         method: "action_populate_salary_rule_ids"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after populate"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Create payslip with payroll agreement"
         action: "create"
@@ -876,11 +814,6 @@ scenarios:
         target: "payslip"
         method: "action_compute_payslip"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert payslip has one line summing AGGRSUM1"
         action: "assert"
@@ -1027,22 +960,18 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement"
         action: "call"
         target: "agreement"
         method: "action_approve_approval"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after approve"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Open agreement"
         action: "call"
@@ -1052,21 +981,11 @@ scenarios:
         context:
           bypass_policy_check: true
 
-      - step: "Invalidate cache after open"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
-
       - step: "Populate salary rules"
         action: "call"
         target: "agreement"
         method: "action_populate_salary_rule_ids"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after populate"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Create payslip with payroll agreement"
         action: "create"
@@ -1088,11 +1007,6 @@ scenarios:
         target: "payslip"
         method: "action_compute_payslip"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert payslip line sums both AGGRSUM2 rows, none overwritten"
         action: "assert"
@@ -1230,22 +1144,18 @@ scenarios:
         target: "agreement"
         method: "action_confirm"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after confirm"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
 
       - step: "Approve agreement"
         action: "call"
         target: "agreement"
         method: "action_approve_approval"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after approve"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Open agreement"
         action: "call"
@@ -1255,21 +1165,11 @@ scenarios:
         context:
           bypass_policy_check: true
 
-      - step: "Invalidate cache after open"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
-
       - step: "Populate salary rules"
         action: "call"
         target: "agreement"
         method: "action_populate_salary_rule_ids"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after populate"
-        action: "call"
-        target: "agreement"
-        method: "invalidate_cache"
 
       - step: "Create payslip with payroll agreement"
         action: "create"
@@ -1291,11 +1191,6 @@ scenarios:
         target: "payslip"
         method: "action_compute_payslip"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert unknown code resolved as 0.0, not an exception"
         action: "assert"
@@ -1418,11 +1313,6 @@ scenarios:
         target: "payslip"
         method: "action_compute_payslip"
         as_user: "base.user_admin"
-
-      - step: "Invalidate cache after compute"
-        action: "call"
-        target: "payslip"
-        method: "invalidate_cache"
 
       - step: "Assert aggr_inputs stays available and sum() is 0.0"
         action: "assert"
