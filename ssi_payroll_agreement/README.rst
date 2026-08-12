@@ -24,6 +24,7 @@ Work Instruction
 ================
 
 * `Payroll Agreement <docs/payroll_agreement/index.html>`_
+* `Restart Approval Process - Payroll Agreement <docs/payroll_agreement/index.html>`_
 * `Payroll Agreement Type <docs/payroll_agreement_type/index.html>`_
 * `Payroll Agreement Input Type <docs/payroll_agreement_input_type/index.html>`_
 

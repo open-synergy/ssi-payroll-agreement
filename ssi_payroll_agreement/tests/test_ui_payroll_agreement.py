@@ -155,6 +155,24 @@ class TestUiPayrollAgreement(HttpSavepointCase):
         cls.agreement_restart.invalidate_cache()
         cls.agreement_restart.action_reject_approval()
 
+        # Pre-Condition 14-restart-approval.md: Waiting for Approval,
+        # with no approval.template linked. restart_approval_ok's
+        # additional_python_code only grants the policy when
+        # `not document.approval_template_id`, which models a record
+        # whose assigned template was later deactivated/removed --
+        # action_confirm() always finds and links the "Standard"
+        # approval.template (its python_code is an unconditional
+        # `result = True`), so that stuck state has to be forced
+        # afterwards rather than produced by a plain confirm.
+        cls.agreement_restart_approval = _create_agreement("Restart Approval")
+        cls.agreement_restart_approval.action_confirm()
+        cls.agreement_restart_approval.invalidate_cache()
+        stuck_agreement = cls.agreement_restart_approval.sudo()
+        stuck_agreement.mapped("approval_ids").unlink()
+        stuck_agreement.mapped("active_approver_partner_ids").unlink()
+        stuck_agreement.write({"approval_template_id": False})
+        cls.agreement_restart_approval.invalidate_cache()
+
     def test_create(self):
         """Run the create tour for ``payroll_agreement``.
 
@@ -240,5 +258,16 @@ class TestUiPayrollAgreement(HttpSavepointCase):
         self.start_tour(
             "/web",
             "ssi_payroll_agreement_payroll_agreement_restart",
+            login="admin",
+        )
+
+    def test_restart_approval(self):
+        """Run the restart approval process tour for ``payroll_agreement``.
+
+        IK: docs/payroll_agreement/14-restart-approval.md
+        """
+        self.start_tour(
+            "/web",
+            "ssi_payroll_agreement_payroll_agreement_restart_approval",
             login="admin",
         )
