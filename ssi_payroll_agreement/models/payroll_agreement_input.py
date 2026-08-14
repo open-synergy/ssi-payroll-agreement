@@ -36,7 +36,7 @@ class PayrollAgreementInput(models.Model):
     )
 
     @api.onchange("input_type_id")
-    def _onchange_input_type_id(self):
+    def onchange_amount(self):
         """Set ``amount`` from the selected input type's default.
 
         Overwrites ``amount`` with ``input_type_id.default_amount`` only

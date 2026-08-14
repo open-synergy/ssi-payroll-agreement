@@ -1,0 +1,239 @@
+options:
+  auto_refresh: true
+
+scenarios:
+  - name: "HR Payslip - onchange_payroll_agreement_id resolves the agreement"
+    steps:
+      - step: "Create salary structure for the agreement"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "agreement_structure"
+        values:
+          name: "HP Onchange Agreement Structure"
+          code: "HPOCAGSTR"
+
+      - step: "Create payroll agreement type"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "HP Onchange Agreement Type"
+          code: "HPOCAGTYPE"
+
+      - step: "Create employee with agreement method"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "HP Onchange Employee Agreement"
+          method: "agreement"
+
+      - step: "Create payroll agreement"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['agreement_structure'].id"
+          date: 2025-01-01
+
+      - step: "Confirm agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di test_data_payroll_agreement.yaml).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Open agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Build payslip form and resolve the agreement via onchange"
+        action: "form"
+        model: "hr.payslip"
+        as_user: "base.user_admin"
+        save: false
+        ops:
+          - set: {employee_id: "REC: employee"}
+          - assert:
+              payroll_agreement_id:
+                type: "value"
+                operator: "is_falsy"
+          - set: {date_start: 2025-01-15}
+          - assert:
+              payroll_agreement_id:
+                type: "m2o"
+                expected: "REC: agreement"
+              structure_id:
+                type: "m2o"
+                expected: "REC: agreement_structure"
+
+  - name: "HR Payslip - onchange_structure_id follows the manual structure"
+    steps:
+      - step: "Create manual salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "manual_structure"
+        values:
+          name: "HP Onchange Manual Structure"
+          code: "HPOCMANSTR"
+
+      - step: "Create employee with manual method"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "HP Onchange Employee Manual"
+          method: "manual"
+          manual_salary_structure_id: "EVAL: registry['manual_structure'].id"
+
+      - step: "Build payslip form and resolve manual structure via onchange"
+        action: "form"
+        model: "hr.payslip"
+        as_user: "base.user_admin"
+        save: false
+        ops:
+          - set: {employee_id: "REC: employee"}
+          - assert:
+              structure_id:
+                type: "m2o"
+                expected: "REC: manual_structure"
+              payroll_agreement_id:
+                type: "value"
+                operator: "is_falsy"
+
+  - name: "HR Payslip - onchange_aggrement_structure_id falls back when cleared"
+    steps:
+      - step: "Create manual salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "manual_structure"
+        values:
+          name: "HP Onchange Fallback Manual Structure"
+          code: "HPOCFBMANSTR"
+
+      - step: "Create agreement salary structure"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "agreement_structure"
+        values:
+          name: "HP Onchange Fallback Agreement Structure"
+          code: "HPOCFBAGSTR"
+
+      - step: "Create payroll agreement type"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "HP Onchange Fallback Agreement Type"
+          code: "HPOCFBAGTYPE"
+
+      - step: "Create employee with agreement method"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_agreement"
+        values:
+          name: "HP Onchange Fallback Employee Agreement"
+          method: "agreement"
+
+      - step: "Create employee with manual method and manual structure"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_manual"
+        values:
+          name: "HP Onchange Fallback Employee Manual"
+          method: "manual"
+          manual_salary_structure_id: "EVAL: registry['manual_structure'].id"
+
+      - step: "Create payroll agreement for the agreement employee"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee_agreement'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['agreement_structure'].id"
+          date: 2025-01-01
+
+      - step: "Confirm agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di test_data_payroll_agreement.yaml).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Open agreement"
+        action: "call"
+        target: "agreement"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Build payslip form, resolve agreement then switch to the manual employee"
+        action: "form"
+        model: "hr.payslip"
+        as_user: "base.user_admin"
+        save: false
+        ops:
+          # payroll_agreement_id is readonly="1" (force_save="1") on the
+          # form — it can only be driven via onchange, never written
+          # directly. The agreement is resolved by setting employee_id
+          # to an agreement-method employee plus date_start; it is then
+          # cleared by switching employee_id to a manual-method employee,
+          # which re-triggers onchange_payroll_agreement_id via the
+          # related `method` field.
+          - set: {employee_id: "REC: employee_agreement"}
+          - set: {date_start: 2025-01-15}
+          - assert:
+              structure_id:
+                type: "m2o"
+                expected: "REC: agreement_structure"
+              payroll_agreement_id:
+                type: "m2o"
+                expected: "REC: agreement"
+          - set: {employee_id: "REC: employee_manual"}
+          - assert:
+              payroll_agreement_id:
+                type: "value"
+                operator: "is_falsy"
+              structure_id:
+                type: "m2o"
+                expected: "REC: manual_structure"
