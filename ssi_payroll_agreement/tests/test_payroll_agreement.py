@@ -15,8 +15,9 @@ class TestPayrollAgreement(YamlTransactionCase):
         """Run the payroll agreement YAML scenario suite."""
         self.run_yaml_scenario("test_data_payroll_agreement.yaml")
 
-    def test_onchange_input_type_id(self):
-        """Assert ``amount`` on a single ``input_line_ids`` row via onchange.
+    def test_onchange_amount(self):
+        """Assert ``amount`` on a single ``input_line_ids`` row via
+        ``onchange_amount``.
 
         Pure Python — trigger P3 (L-06: o2m/m2m comparison is set-based,
         so a per-row assert like this one cannot be expressed in YAML).

@@ -1325,3 +1325,108 @@ scenarios:
           line_ids.total:
             type: "value"
             expected: 2.0
+
+  - name: "Payroll Agreement - _constrains_open rejects a second open agreement"
+    steps:
+      - step: "Create salary structure for constrain test"
+        action: "create"
+        model: "hr.salary_structure"
+        save_as: "salary_structure"
+        values:
+          name: "PA Constrain Test Structure"
+          code: "PACONSTR"
+
+      - step: "Create payroll agreement type for constrain test"
+        action: "create"
+        model: "payroll_agreement_type"
+        save_as: "agreement_type"
+        values:
+          name: "PA Constrain Test Type"
+          code: "PACONTYPE"
+
+      - step: "Create employee for constrain test"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee"
+        values:
+          name: "PA Constrain Test Employee"
+
+      - step: "Create first payroll agreement"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement_a"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-01-01
+
+      - step: "Confirm first agreement"
+        action: "call"
+        target: "agreement_a"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve first agreement"
+        action: "call"
+        target: "agreement_a"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Open first agreement"
+        action: "call"
+        target: "agreement_a"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        asserts:
+          state:
+            type: "value"
+            expected: "open"
+
+      - step: "Create second payroll agreement for the same employee"
+        action: "create"
+        model: "payroll_agreement"
+        save_as: "agreement_b"
+        as_user: "base.user_admin"
+        values:
+          employee_id: "EVAL: registry['employee'].id"
+          type_id: "EVAL: registry['agreement_type'].id"
+          salary_structure_id: "EVAL: registry['salary_structure'].id"
+          date: 2025-02-01
+
+      - step: "Confirm second agreement"
+        action: "call"
+        target: "agreement_b"
+        method: "action_confirm"
+        as_user: "base.user_admin"
+        # WAJIB: memaksa refresh cache sebelum approve_ok dibaca (lihat
+        # catatan T-04 di atas).
+        asserts:
+          state:
+            type: "value"
+            expected: "confirm"
+
+      - step: "Approve second agreement"
+        action: "call"
+        target: "agreement_b"
+        method: "action_approve_approval"
+        as_user: "base.user_admin"
+
+      - step: "Open second agreement, rejected by _constrains_open"
+        action: "call"
+        target: "agreement_b"
+        method: "action_open"
+        as_user: "base.user_admin"
+        context:
+          bypass_policy_check: true
+        expect_error:
+          type: "ValidationError"
