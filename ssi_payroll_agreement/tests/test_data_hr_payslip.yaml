@@ -149,22 +149,30 @@ scenarios:
           name: "HP Onchange Fallback Agreement Type"
           code: "HPOCFBAGTYPE"
 
+      - step: "Create employee with agreement method"
+        action: "create"
+        model: "hr.employee"
+        save_as: "employee_agreement"
+        values:
+          name: "HP Onchange Fallback Employee Agreement"
+          method: "agreement"
+
       - step: "Create employee with manual method and manual structure"
         action: "create"
         model: "hr.employee"
-        save_as: "employee"
+        save_as: "employee_manual"
         values:
-          name: "HP Onchange Fallback Employee"
+          name: "HP Onchange Fallback Employee Manual"
           method: "manual"
           manual_salary_structure_id: "EVAL: registry['manual_structure'].id"
 
-      - step: "Create payroll agreement for the same employee"
+      - step: "Create payroll agreement for the agreement employee"
         action: "create"
         model: "payroll_agreement"
         save_as: "agreement"
         as_user: "base.user_admin"
         values:
-          employee_id: "EVAL: registry['employee'].id"
+          employee_id: "EVAL: registry['employee_agreement'].id"
           type_id: "EVAL: registry['agreement_type'].id"
           salary_structure_id: "EVAL: registry['agreement_structure'].id"
           date: 2025-01-01
@@ -199,14 +207,21 @@ scenarios:
             type: "value"
             expected: "open"
 
-      - step: "Build payslip form, set then clear the agreement"
+      - step: "Build payslip form, resolve agreement then switch to the manual employee"
         action: "form"
         model: "hr.payslip"
         as_user: "base.user_admin"
         save: false
         ops:
-          - set: {employee_id: "REC: employee"}
-          - set: {payroll_agreement_id: "REC: agreement"}
+          # payroll_agreement_id is readonly="1" (force_save="1") on the
+          # form — it can only be driven via onchange, never written
+          # directly. The agreement is resolved by setting employee_id
+          # to an agreement-method employee plus date_start; it is then
+          # cleared by switching employee_id to a manual-method employee,
+          # which re-triggers onchange_payroll_agreement_id via the
+          # related `method` field.
+          - set: {employee_id: "REC: employee_agreement"}
+          - set: {date_start: 2025-01-15}
           - assert:
               structure_id:
                 type: "m2o"
@@ -214,7 +229,7 @@ scenarios:
               payroll_agreement_id:
                 type: "m2o"
                 expected: "REC: agreement"
-          - set: {payroll_agreement_id: false}
+          - set: {employee_id: "REC: employee_manual"}
           - assert:
               payroll_agreement_id:
                 type: "value"
